@@ -12,12 +12,7 @@ export default function App() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<'All' | VenueCategory>('All');
-  const [isLive, setIsLive] = useState(true);
-  const latestVenues = useRef(venues);
-  
-  useEffect(() => {
-    latestVenues.current = venues;
-  }, [venues]);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const loadVenues = async () => {
     setIsLoading(true);
@@ -25,6 +20,7 @@ export default function App() {
       const generated = await generateInitialVenues();
       if (generated && generated.length > 0) {
         setVenues(generated);
+        setLastUpdated(new Date());
       } else {
         setVenues(FALLBACK_VENUES);
       }
@@ -39,46 +35,6 @@ export default function App() {
   useEffect(() => {
     loadVenues();
   }, []);
-
-  // Live simulation effect
-  useEffect(() => {
-    if (!isLive || isLoading || venues.length === 0) return;
-
-    const interval = setInterval(() => {
-      // Pick 2-4 random venues to update their scores
-      const numToUpdate = Math.floor(Math.random() * 3) + 2;
-      const updatedVenues = [...latestVenues.current];
-      
-      for (let i = 0; i < numToUpdate; i++) {
-        const randomIndex = Math.floor(Math.random() * updatedVenues.length);
-        const venue = updatedVenues[randomIndex];
-        
-        // Randomly add 1 to 15 new reviews (popularity strictly increases)
-        const change = Math.floor(Math.random() * 15) + 1;
-        
-        // Sometimes slightly tweak the rating
-        let newRating = venue.rating;
-        if (Math.random() > 0.7) {
-            newRating += (Math.random() * 0.04) - 0.02; // fluctuate by up to +/- 0.02
-            newRating = Math.max(1, Math.min(5, newRating)); // clamp between 1.0 and 5.0
-        }
-        
-        updatedVenues[randomIndex] = {
-          ...venue,
-          rating: newRating,
-          popularity: venue.popularity + change,
-          change: change
-        };
-      }
-      
-      // Re-sort array
-      updatedVenues.sort((a, b) => b.popularity - a.popularity);
-      setVenues(updatedVenues);
-      
-    }, 2500); // Pulse every 2.5s
-
-    return () => clearInterval(interval);
-  }, [isLive, isLoading, venues.length]);
 
   const filteredVenues = venues.filter(v => 
     activeCategory === 'All' ? true : v.category === activeCategory
@@ -107,28 +63,22 @@ export default function App() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-zinc-900/50 border border-zinc-800 rounded-full p-1.5 backdrop-blur-md">
-            <button
-              onClick={() => loadVenues()}
-              disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium hover:bg-zinc-800 text-zinc-300 transition-colors disabled:opacity-50"
-            >
-              <Cpu className={cn("w-4 h-4", isLoading && "animate-spin text-brand-400")} />
-              {isLoading ? "Generating..." : "AI Sync"}
-            </button>
-            <div className="w-px h-6 bg-zinc-800" />
-            <button
-              onClick={() => setIsLive(!isLive)}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                isLive 
-                  ? "bg-brand-500/10 text-brand-400 shadow-[0_0_15px_rgba(34,197,94,0.15)]" 
-                  : "hover:bg-zinc-800 text-zinc-400"
-              )}
-            >
-              <Activity className={cn("w-4 h-4", isLive && "animate-pulse")} />
-              Live Simulation {isLive ? "On" : "Off"}
-            </button>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex items-center gap-4 bg-zinc-900/50 border border-zinc-800 rounded-full p-1.5 backdrop-blur-md">
+              <button
+                onClick={() => loadVenues()}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-6 py-2 rounded-full text-sm font-medium bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+                {isLoading ? "Fetching Real Data..." : "Refresh Live Data"}
+              </button>
+            </div>
+            {lastUpdated && (
+              <div className="text-xs text-zinc-500 font-mono px-2">
+                Last verified: {lastUpdated.toLocaleTimeString()}
+              </div>
+            )}
           </div>
         </header>
 

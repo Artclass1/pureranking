@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { type Venue } from "../types";
-import { TrendingUp, TrendingDown, Minus, MapPin, Star } from "lucide-react";
+import { Minus, MapPin, Star } from "lucide-react";
 import { cn } from "../lib/utils";
 
 interface LeaderboardItemProps {
@@ -64,21 +64,8 @@ export function LeaderboardItem({ venue, rank }: LeaderboardItemProps) {
         <div className="text-2xl font-mono font-bold text-brand-400 tracking-tight">
           {venue.popularity.toLocaleString()}
         </div>
-        <div className={cn(
-          "flex items-center gap-1 text-xs font-medium font-mono",
-          isUp ? "text-brand-500" : isDown ? "text-red-500" : "text-zinc-500"
-        )}>
-          {isUp && <TrendingUp className="w-3.5 h-3.5" />}
-          {isDown && <TrendingDown className="w-3.5 h-3.5" />}
-          {!isUp && !isDown && <Minus className="w-3.5 h-3.5" />}
-          
-          <motion.span
-            key={venue.change}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {isUp ? '+' : ''}{venue.change || 0}
-          </motion.span>
+        <div className="flex items-center gap-1 text-xs font-medium font-mono text-zinc-500">
+          <span className="text-[10px] uppercase tracking-wider">Reviews</span>
         </div>
       </div>
     </motion.li>
