@@ -65,7 +65,7 @@ export function LeaderboardItem({ venue, rank }: LeaderboardItemProps) {
           {venue.popularity.toLocaleString()}
         </div>
         <div className="flex items-center gap-1 text-xs font-medium font-mono text-zinc-500">
-          <span className="text-[10px] uppercase tracking-wider">Reviews</span>
+          <span className="text-[10px] uppercase tracking-wider">Current Month Score</span>
         </div>
       </div>
     </motion.li>

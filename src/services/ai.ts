@@ -6,11 +6,12 @@ const ai = new GoogleGenAI({
 });
 
 export async function generateInitialVenues(): Promise<Venue[]> {
-  const prompt = `Use your Google Search integration (Grounding) to query REAL LIVE DATA from Google Maps tracking.
-Find 30 of the most popular, genuine "pure veg" (100% vegetarian / vegan) restaurants, cafes, luxury resorts, and hotels currently operating anywhere in the world.
-CRITICAL: Do NOT invent or simulate data. For each venue, you MUST extract the actual, current Google Maps rating (e.g., 4.7) and the actual, current total number of reviews (use this as the \`popularity\` field).
-Include a mix of categories (Restaurant, Cafe, Resort, Hotel).
-Make sure you parse the review counts correctly to populate the popularity field (e.g., if it has 12,500 reviews, popularity is 12500).
+  const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+  const prompt = `Use your Google Search integration (Grounding) to query REAL LIVE DATA for ${currentMonth}.
+Find 30 of the most popular, genuine "pure veg" (100% vegetarian / vegan) restaurants, cafes, luxury resorts, and hotels currently trending anywhere in the world.
+CRITICAL: Do NOT invent or simulate data. For each venue, extract the actual, current Google Maps rating (e.g., 4.7).
+For the \`popularity\` field, use the estimated number of RECENT REVIEWS or a "Trending Score" based on activity specifically in ${currentMonth} (e.g., between 100 and 3000), rather than their all-time total historical reviews. 
+Make sure you include a mix of categories (Restaurant, Cafe, Resort, Hotel).
 Return exactly 30 items in JSON matching the provided schema.`;
 
   try {
